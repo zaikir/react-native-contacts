@@ -1,8 +1,5 @@
-import { CameraRoll } from './CameraRoll';
+import { Contacts } from './Contacts';
 
-export * from './CameraRoll';
+export * from './Contacts';
 
-export const fetchAssets = CameraRoll.getAssets;
-export const fetchAssetsCount = CameraRoll.getAssetsCount;
-export const editIsFavorite = CameraRoll.editIsFavorite;
-export const deleteAssets = CameraRoll.deleteAssets;
+export const getAll = Contacts.getAll;
