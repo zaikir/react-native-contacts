@@ -22,7 +22,7 @@ class RNContacts: NSObject {
     super.init()
   }
 
-  @objc(getAll:withRejecter:)
+  @objc(fetchContacts:withRejecter:)
   func fetchContacts(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     checkContactsAccess(
       onGranted: {
