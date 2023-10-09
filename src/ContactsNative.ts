@@ -6,8 +6,8 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-export const RNContacts = NativeModules.Contacts
-  ? NativeModules.Contacts
+export const RNContacts = NativeModules.RNContacts
+  ? NativeModules.RNContacts
   : new Proxy(
       {},
       {
