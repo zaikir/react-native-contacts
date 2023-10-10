@@ -1,18 +1,18 @@
-export type ContactPhoneNumber = {
+export type LabeledItem = {
   id: string;
   label: string | null;
+  localizedLabel: string | null;
+};
+
+export type ContactPhoneNumber = LabeledItem & {
   phoneNumber: string | null;
 };
 
-export type ContactEmail = {
-  id: string;
-  label: string | null;
+export type ContactEmail = LabeledItem & {
   email: string | null;
 };
 
-export type ContactUrlAddress = {
-  id: string;
-  label: string | null;
+export type ContactUrlAddress = LabeledItem & {
   url: string | null;
 };
 

@@ -52,8 +52,9 @@ class RNContacts: NSObject {
               let localizedLabel = CNLabeledValue<CNPhoneNumber>.localizedString(forLabel: phoneNumber.label ?? "")
 
               itemDict["id"] = phoneNumber.identifier
+              itemDict["label"] = phoneNumber.label ?? ""
               itemDict["phoneNumber"] = phoneNumber.value.stringValue
-              itemDict["label"] = localizedLabel
+              itemDict["localizedLabel"] = localizedLabel
 
               return itemDict
             }
@@ -63,8 +64,9 @@ class RNContacts: NSObject {
               let localizedLabel = CNLabeledValue<NSString>.localizedString(forLabel: emailAddress.label ?? "")
 
               itemDict["id"] = emailAddress.identifier
+              itemDict["label"] = emailAddress.label ?? ""
               itemDict["email"] = emailAddress.value
-              itemDict["label"] = localizedLabel
+              itemDict["localizedLabel"] = localizedLabel
 
               return itemDict
             }
@@ -74,8 +76,9 @@ class RNContacts: NSObject {
               let localizedLabel = CNLabeledValue<NSString>.localizedString(forLabel: urlAddress.label ?? "")
 
               itemDict["id"] = urlAddress.identifier
+              itemDict["label"] = urlAddress.label ?? ""
               itemDict["url"] = urlAddress.value
-              itemDict["label"] = localizedLabel
+              itemDict["localizedLabel"] = localizedLabel
 
               return itemDict
             }
@@ -131,24 +134,47 @@ class RNContacts: NSObject {
 
             mutableContact.phoneNumbers = (updatedContact!["phoneNumbers"] as! [[String: Any]]).map { item in
               var label: String = item["label"] as! String
+              var phoneNumber = item["phoneNumber"] as! String
 
-              if label == "main" {
-                label = CNLabelPhoneNumberMain
-              } else if label == "mobile" {
-                label = CNLabelPhoneNumberMobile
-              } else if label == "iPhone" {
-                label = CNLabelPhoneNumberiPhone
+              var existingItem = mutableContact.phoneNumbers.first { nestedItem in
+                nestedItem.identifier == (item["id"] as! String)
               }
 
-              return CNLabeledValue<CNPhoneNumber>.init(label: label, value: CNPhoneNumber(stringValue: item["phoneNumber"] as! String))
+              if existingItem != nil, existingItem!.label == label, existingItem!.value.stringValue == phoneNumber {
+                return existingItem!
+              }
+
+              return CNLabeledValue<CNPhoneNumber>.init(label: label, value: CNPhoneNumber(stringValue: phoneNumber))
             }
 
             mutableContact.emailAddresses = (updatedContact!["emails"] as! [[String: Any]]).map { item in
-                CNLabeledValue<NSString>.init(label: (item["label"] as! String), value: item["email"] as! NSString)
+              var label: String = item["label"] as! String
+              var itemValue = item["email"] as! NSString
+
+              var existingItem = mutableContact.emailAddresses.first { nestedItem in
+                nestedItem.identifier == (item["id"] as! String)
+              }
+
+              if existingItem != nil, existingItem!.label == label, existingItem!.value == itemValue {
+                return existingItem!
+              }
+
+              return CNLabeledValue<NSString>.init(label: label, value: itemValue)
             }
 
-            mutableContact.emailAddresses = (updatedContact!["urlAddresses"] as! [[String: Any]]).map { item in
-                CNLabeledValue<NSString>.init(label: (item["label"] as! String), value: item["url"] as! NSString)
+            mutableContact.urlAddresses = (updatedContact!["urlAddresses"] as! [[String: Any]]).map { item in
+              var label: String = item["label"] as! String
+              var itemValue = item["url"] as! NSString
+
+              var existingItem = mutableContact.urlAddresses.first { nestedItem in
+                nestedItem.identifier == (item["id"] as! String)
+              }
+
+              if existingItem != nil, existingItem!.label == label, existingItem!.value == itemValue {
+                return existingItem!
+              }
+
+              return CNLabeledValue<NSString>.init(label: label, value: itemValue)
             }
 
             mutableContacts.append(mutableContact)

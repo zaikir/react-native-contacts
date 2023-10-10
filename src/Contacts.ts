@@ -21,16 +21,19 @@ export class Contacts {
       phoneNumbers: (x.phoneNumbers || []).map((phoneNumber: any) => ({
         id: phoneNumber.id,
         label: phoneNumber.label || null,
+        localizedLabel: phoneNumber.localizedLabel || null,
         phoneNumber: phoneNumber.phoneNumber || null,
       })),
       emails: (x.emails || []).map((email: any) => ({
         id: email.id,
         label: email.label || null,
+        localizedLabel: email.localizedLabel || null,
         email: email.email || null,
       })),
       urlAddresses: (x.urlAddresses || []).map((urlAddress: any) => ({
         id: urlAddress.id,
         label: urlAddress.label || null,
+        localizedLabel: urlAddress.localizedLabel || null,
         url: urlAddress.url || null,
       })),
     }));
@@ -40,7 +43,7 @@ export class Contacts {
    * Update contacts
    */
   static async updateContacts(contacts: Contact[]) {
-    await RNContacts.getAll(
+    await RNContacts.updateContacts(
       contacts.map((x) => ({
         id: x.id,
         firstName: x.firstName ?? '',
@@ -51,16 +54,19 @@ export class Contacts {
         phoneNumbers: (x.phoneNumbers || []).map((phoneNumber: any) => ({
           id: phoneNumber.id,
           label: phoneNumber.label ?? '',
+          localizedLabel: phoneNumber.localizedLabel ?? '',
           phoneNumber: phoneNumber.phoneNumber ?? '',
         })),
         emails: (x.emails || []).map((email: any) => ({
           id: email.id,
           label: email.label ?? '',
+          localizedLabel: email.localizedLabel ?? '',
           email: email.email ?? '',
         })),
         urlAddresses: (x.urlAddresses || []).map((urlAddress: any) => ({
           id: urlAddress.id,
           label: urlAddress.label ?? '',
+          localizedLabel: urlAddress.localizedLabel ?? '',
           url: urlAddress.url ?? '',
         })),
       }))
