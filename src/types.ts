@@ -28,3 +28,11 @@ export type Contact = {
   emails: ContactEmail[];
   urlAddresses: ContactUrlAddress[];
 };
+
+export type ContactUpdate = Partial<
+  Omit<Contact, 'phoneNumbers' | 'emails' | 'urlAddresses'>
+> & {
+  phoneNumbers: Partial<ContactPhoneNumber>[];
+  emails: Partial<ContactEmail>[];
+  urlAddresses: Partial<ContactUrlAddress>[];
+};

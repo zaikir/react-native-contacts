@@ -1,5 +1,5 @@
 import { RNContacts } from './ContactsNative';
-import { Contact } from './types';
+import { Contact, ContactUpdate } from './types';
 
 /**
  * `Contacts` provides access to the contacts
@@ -43,7 +43,7 @@ export class Contacts {
    * Update contacts
    */
   static async updateContacts(
-    contacts: Partial<Contact>[],
+    contacts: ContactUpdate[],
     idsToDelete?: string[]
   ) {
     await RNContacts.updateContacts([
