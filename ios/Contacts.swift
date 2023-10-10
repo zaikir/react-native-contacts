@@ -102,11 +102,13 @@ class RNContacts: NSObject {
     checkContactsAccess(
       onGranted: {
         let request = CNContactFetchRequest(keysToFetch: self.keysToFetch as [CNKeyDescriptor])
-        request.predicate = CNContact.predicateForContacts(withIdentifiers: contacts.map { item in
-          item["id"] as! String
-        })
+        request.predicate = CNContact.predicateForContacts(withIdentifiers: contacts
+          .filter { item in (item["id"] as! String) != "" }
+          .map { item in item["id"] as! String }
+        )
 
         var mutableContacts = [CNMutableContact]()
+        var deletedContacts = [CNMutableContact]()
 
         do {
           try self.store.enumerateContacts(with: request) { originalContact, _ in
@@ -118,71 +120,25 @@ class RNContacts: NSObject {
               return
             }
 
-            var mutableContact = originalContact.mutableCopy() as! CNMutableContact
-            mutableContact.givenName = updatedContact!["firstName"] as! String
-            mutableContact.familyName = updatedContact!["secondName"] as! String
-            mutableContact.middleName = updatedContact!["middleName"] as! String
-            mutableContact.organizationName = updatedContact!["organizationName"] as! String
-
-            if (updatedContact!["birthday"] as! String) == "" {
-              mutableContact.birthday = nil
+            if updatedContact!["action"] as? String == "delete" {
+              deletedContacts.append(originalContact.mutableCopy() as! CNMutableContact)
             } else {
-              let dateFormatter = DateFormatter()
-              dateFormatter.dateFormat = "yyyy-MM-dd"
-              mutableContact.birthday = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: dateFormatter.date(from: updatedContact!["birthday"] as! String)!)
+              mutableContacts.append(self.updateRecord(originalContact: originalContact, updatedContact: updatedContact!))
             }
-
-            mutableContact.phoneNumbers = (updatedContact!["phoneNumbers"] as! [[String: Any]]).map { item in
-              var label: String = item["label"] as! String
-              var phoneNumber = item["phoneNumber"] as! String
-
-              var existingItem = mutableContact.phoneNumbers.first { nestedItem in
-                nestedItem.identifier == (item["id"] as! String)
-              }
-
-              if existingItem != nil, existingItem!.label == label, existingItem!.value.stringValue == phoneNumber {
-                return existingItem!
-              }
-
-              return CNLabeledValue<CNPhoneNumber>.init(label: label, value: CNPhoneNumber(stringValue: phoneNumber))
-            }
-
-            mutableContact.emailAddresses = (updatedContact!["emails"] as! [[String: Any]]).map { item in
-              var label: String = item["label"] as! String
-              var itemValue = item["email"] as! NSString
-
-              var existingItem = mutableContact.emailAddresses.first { nestedItem in
-                nestedItem.identifier == (item["id"] as! String)
-              }
-
-              if existingItem != nil, existingItem!.label == label, existingItem!.value == itemValue {
-                return existingItem!
-              }
-
-              return CNLabeledValue<NSString>.init(label: label, value: itemValue)
-            }
-
-            mutableContact.urlAddresses = (updatedContact!["urlAddresses"] as! [[String: Any]]).map { item in
-              var label: String = item["label"] as! String
-              var itemValue = item["url"] as! NSString
-
-              var existingItem = mutableContact.urlAddresses.first { nestedItem in
-                nestedItem.identifier == (item["id"] as! String)
-              }
-
-              if existingItem != nil, existingItem!.label == label, existingItem!.value == itemValue {
-                return existingItem!
-              }
-
-              return CNLabeledValue<NSString>.init(label: label, value: itemValue)
-            }
-
-            mutableContacts.append(mutableContact)
           }
 
           let saveRequest = CNSaveRequest()
+
           mutableContacts.forEach { contact in
             saveRequest.update(contact)
+          }
+
+          deletedContacts.forEach { contact in
+            saveRequest.delete(contact)
+          }
+
+          contacts.filter { item in (item["id"] as! String) == "" }.forEach { contact in
+            saveRequest.add(self.updateRecord(originalContact: nil, updatedContact: contact), toContainerWithIdentifier: nil)
           }
 
           try self.store.execute(saveRequest)
@@ -196,6 +152,72 @@ class RNContacts: NSObject {
         reject("Permission denied", "Photos access permission required", nil)
       }
     )
+  }
+
+  func updateRecord(originalContact: CNContact?, updatedContact: [String: Any]) -> CNMutableContact {
+    var mutableContact = originalContact == nil
+      ? CNMutableContact()
+      : originalContact!.mutableCopy() as! CNMutableContact
+
+    mutableContact.givenName = updatedContact["firstName"] as! String
+    mutableContact.familyName = updatedContact["secondName"] as! String
+    mutableContact.middleName = updatedContact["middleName"] as! String
+    mutableContact.organizationName = updatedContact["organizationName"] as! String
+
+    if (updatedContact["birthday"] as! String) == "" {
+      mutableContact.birthday = nil
+    } else {
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "yyyy-MM-dd"
+      mutableContact.birthday = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: dateFormatter.date(from: updatedContact["birthday"] as! String)!)
+    }
+
+    mutableContact.phoneNumbers = (updatedContact["phoneNumbers"] as! [[String: Any]]).map { item in
+      var label: String = item["label"] as! String
+      var phoneNumber = item["phoneNumber"] as! String
+
+      var existingItem = item["id"] == nil ? nil : mutableContact.phoneNumbers.first { nestedItem in
+        nestedItem.identifier == (item["id"] as! String)
+      }
+
+      if existingItem != nil, existingItem!.label == label, existingItem!.value.stringValue == phoneNumber {
+        return existingItem!
+      }
+
+      return CNLabeledValue<CNPhoneNumber>.init(label: label, value: CNPhoneNumber(stringValue: phoneNumber))
+    }
+
+    mutableContact.emailAddresses = (updatedContact["emails"] as! [[String: Any]]).map { item in
+      var label: String = item["label"] as! String
+      var itemValue = item["email"] as! NSString
+
+      var existingItem = item["id"] == nil ? nil : mutableContact.emailAddresses.first { nestedItem in
+        nestedItem.identifier == (item["id"] as! String)
+      }
+
+      if existingItem != nil, existingItem!.label == label, existingItem!.value == itemValue {
+        return existingItem!
+      }
+
+      return CNLabeledValue<NSString>.init(label: label, value: itemValue)
+    }
+
+    mutableContact.urlAddresses = (updatedContact["urlAddresses"] as! [[String: Any]]).map { item in
+      var label: String = item["label"] as! String
+      var itemValue = item["url"] as! NSString
+
+      var existingItem = item["id"] == nil ? nil : mutableContact.urlAddresses.first { nestedItem in
+        nestedItem.identifier == (item["id"] as! String)
+      }
+
+      if existingItem != nil, existingItem!.label == label, existingItem!.value == itemValue {
+        return existingItem!
+      }
+
+      return CNLabeledValue<NSString>.init(label: label, value: itemValue)
+    }
+
+    return mutableContact
   }
 
   func checkContactsAccess(onGranted: @escaping () -> Void, onDenied: @escaping () -> Void) {

@@ -42,34 +42,41 @@ export class Contacts {
   /**
    * Update contacts
    */
-  static async updateContacts(contacts: Contact[]) {
-    await RNContacts.updateContacts(
-      contacts.map((x) => ({
-        id: x.id,
+  static async updateContacts(
+    contacts: Partial<Contact>[],
+    idsToDelete?: string[]
+  ) {
+    await RNContacts.updateContacts([
+      ...contacts.map((x) => ({
+        id: x.id ?? '',
         firstName: x.firstName ?? '',
         secondName: x.secondName ?? '',
         middleName: x.middleName ?? '',
         organizationName: x.organizationName ?? '',
         birthday: x.birthday ?? '',
-        phoneNumbers: (x.phoneNumbers || []).map((phoneNumber: any) => ({
-          id: phoneNumber.id,
+        phoneNumbers: (x.phoneNumbers ?? []).map((phoneNumber) => ({
+          id: phoneNumber.id ?? '',
           label: phoneNumber.label ?? '',
           localizedLabel: phoneNumber.localizedLabel ?? '',
           phoneNumber: phoneNumber.phoneNumber ?? '',
         })),
-        emails: (x.emails || []).map((email: any) => ({
-          id: email.id,
+        emails: (x.emails ?? []).map((email) => ({
+          id: email.id ?? '',
           label: email.label ?? '',
           localizedLabel: email.localizedLabel ?? '',
           email: email.email ?? '',
         })),
-        urlAddresses: (x.urlAddresses || []).map((urlAddress: any) => ({
-          id: urlAddress.id,
+        urlAddresses: (x.urlAddresses ?? []).map((urlAddress) => ({
+          id: urlAddress.id ?? '',
           label: urlAddress.label ?? '',
           localizedLabel: urlAddress.localizedLabel ?? '',
           url: urlAddress.url ?? '',
         })),
-      }))
-    );
+      })),
+      (idsToDelete ?? []).map((id) => ({
+        id,
+        action: 'delete',
+      })),
+    ]);
   }
 }
