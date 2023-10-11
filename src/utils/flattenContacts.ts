@@ -1,4 +1,4 @@
-import { Contact, FlattenContact } from 'src/types';
+import { Contact, FlattenContact } from '../types';
 
 export function flattenContacts<
   K extends 'phoneNumbers' | 'emails' | 'urlAddresses'
@@ -11,6 +11,7 @@ export function flattenContacts<
           (phoneNumber) =>
             ({
               ...contact,
+              id: `${contact.id}__phoneNumber:${phoneNumber.id}`,
               urlAddresses,
               emails,
               phoneNumber,
@@ -23,6 +24,7 @@ export function flattenContacts<
           (email) =>
             ({
               ...contact,
+              id: `${contact.id}__email:${email.id}`,
               phoneNumbers,
               urlAddresses,
               email,
@@ -35,6 +37,7 @@ export function flattenContacts<
           (urlAddress) =>
             ({
               ...contact,
+              id: `${contact.id}__urlAddress:${urlAddress.id}`,
               phoneNumbers,
               emails,
               urlAddress,
