@@ -1,5 +1,6 @@
 import { RNContacts } from './ContactsNative';
 import { Contact, ContactUpdate } from './types';
+import { flattenContacts } from './utils/flattenContacts';
 
 /**
  * `Contacts` provides access to the contacts
@@ -79,4 +80,9 @@ export class Contacts {
       })),
     ]);
   }
+
+  /**
+   * Get flattened contacts
+   */
+  static flattenContacts = flattenContacts;
 }

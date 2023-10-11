@@ -36,3 +36,14 @@ export type ContactUpdate = Partial<
   emails: Partial<ContactEmail>[];
   urlAddresses: Partial<ContactUrlAddress>[];
 };
+
+export type Unpluralize<T extends string> = T extends
+  | `${infer K}s`
+  | `${infer K}es`
+  ? K
+  : T;
+
+export type FlattenContact<
+  K extends 'phoneNumbers' | 'emails' | 'urlAddresses' = 'phoneNumbers',
+  T extends Contact = Contact
+> = Omit<T, K> & Record<Unpluralize<K>, T[K][number]>;
