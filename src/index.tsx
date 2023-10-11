@@ -5,3 +5,4 @@ export * from './types';
 export const fetchContacts = Contacts.fetchContacts;
 export const updateContacts = Contacts.updateContacts;
 export const flattenContacts = Contacts.flattenContacts;
+export const unflattenContacts = Contacts.unflattenContacts;
