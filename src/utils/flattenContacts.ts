@@ -49,3 +49,42 @@ export function flattenContacts<
     }
   );
 }
+
+export function unflattenContacts(
+  contactIds: string[]
+): { id: string; nestedIds: string[] }[] {
+  const pairs = contactIds.flatMap((contactId) => {
+    const [pair] = ['phoneNumber', 'email', 'urlAddress']
+      .map((key) => {
+        if (contactId.includes(`__${key}`)) {
+          const [id, other] = contactId.split('__');
+          return { id: id!, nestedId: other!.replace(`__${key}:`, '') };
+        }
+
+        return null;
+      })
+      .filter((x) => !!x);
+
+    if (!pair) {
+      return { id: contactId, nestedId: null };
+    }
+
+    return pair;
+  });
+
+  return Object.entries(
+    pairs.reduce((acc, item) => {
+      const key = item.id;
+      acc[key] = acc[key] ?? [];
+
+      if (item.nestedId) {
+        acc[key]!.push(item.nestedId);
+      }
+
+      return acc;
+    }, {} as Record<string, string[]>)
+  ).map((x) => ({
+    id: x[0],
+    nestedIds: x[1],
+  }));
+}

@@ -1,6 +1,5 @@
 import { Contacts } from './Contacts';
 
-export * from './Contacts';
 export * from './types';
 
 export const fetchContacts = Contacts.fetchContacts;
