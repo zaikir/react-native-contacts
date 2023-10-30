@@ -45,7 +45,7 @@ export class Contacts {
    */
   static async updateContacts(
     contacts: ContactUpdate[],
-    idsToDelete?: string[]
+    idsToDelete?: string[],
   ) {
     await RNContacts.updateContacts([
       ...contacts.map((x) => ({
@@ -74,7 +74,7 @@ export class Contacts {
           url: urlAddress.url ?? '',
         })),
       })),
-      (idsToDelete ?? []).map((id) => ({
+      ...(idsToDelete ?? []).map((id) => ({
         id,
         action: 'delete',
       })),
