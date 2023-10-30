@@ -14,5 +14,5 @@ export const RNContacts = NativeModules.RNContacts
         get() {
           throw new Error(LINKING_ERROR);
         },
-      }
+      },
     );

@@ -45,7 +45,7 @@ export class Contacts {
    */
   static async updateContacts(
     contacts: ContactUpdate[],
-    idsToDelete?: string[]
+    idsToDelete?: string[],
   ) {
     await RNContacts.updateContacts([
       ...contacts.map((x) => ({

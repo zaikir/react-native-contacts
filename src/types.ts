@@ -45,5 +45,5 @@ export type Unpluralize<T extends string> = T extends
 
 export type FlattenContact<
   K extends 'phoneNumbers' | 'emails' | 'urlAddresses' = 'phoneNumbers',
-  T extends Contact = Contact
+  T extends Contact = Contact,
 > = Omit<T, K> & Record<Unpluralize<K>, T[K][number]>;
