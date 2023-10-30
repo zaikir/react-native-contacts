@@ -1,7 +1,7 @@
 import { Contact, FlattenContact } from '../types';
 
 export function flattenContacts<
-  K extends 'phoneNumbers' | 'emails' | 'urlAddresses'
+  K extends 'phoneNumbers' | 'emails' | 'urlAddresses',
 >(contacts: Contact[], key: K): FlattenContact<K>[] {
   return contacts.flatMap(
     // @ts-ignore
@@ -15,7 +15,7 @@ export function flattenContacts<
               urlAddresses,
               emails,
               phoneNumber,
-            } as FlattenContact<'phoneNumbers'>)
+            } as FlattenContact<'phoneNumbers'>),
         );
       }
 
@@ -28,7 +28,7 @@ export function flattenContacts<
               phoneNumbers,
               urlAddresses,
               email,
-            } as FlattenContact<'emails'>)
+            } as FlattenContact<'emails'>),
         );
       }
 
@@ -41,17 +41,17 @@ export function flattenContacts<
               phoneNumbers,
               emails,
               urlAddress,
-            } as FlattenContact<'urlAddresses'>)
+            } as FlattenContact<'urlAddresses'>),
         );
       }
 
       throw new Error('Not implemented');
-    }
+    },
   );
 }
 
 export function unflattenContacts(
-  contactIds: string[]
+  contactIds: string[],
 ): { id: string; nestedIds: string[] }[] {
   const pairs = contactIds.flatMap((contactId) => {
     const [pair] = ['phoneNumber', 'email', 'urlAddress']
@@ -82,7 +82,7 @@ export function unflattenContacts(
       }
 
       return acc;
-    }, {} as Record<string, string[]>)
+    }, {} as Record<string, string[]>),
   ).map((x) => ({
     id: x[0],
     nestedIds: x[1],
