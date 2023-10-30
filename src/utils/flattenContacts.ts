@@ -57,8 +57,8 @@ export function unflattenContacts(
     const [pair] = ['phoneNumber', 'email', 'urlAddress']
       .map((key) => {
         if (contactId.includes(`__${key}`)) {
-          const [id, other] = contactId.split('__');
-          return { id: id!, nestedId: other!.replace(`__${key}:`, '') };
+          const [id, other] = contactId.split(`__${key}:`);
+          return { id: id!, nestedId: other! };
         }
 
         return null;
