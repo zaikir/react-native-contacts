@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 
-import { FlattenContact, flattenContacts, Contact } from 'src';
+import { FlattenContact, flattenContacts, Contact } from '../index';
 
 export type ContactsFetchStatus =
   | 'unknown'

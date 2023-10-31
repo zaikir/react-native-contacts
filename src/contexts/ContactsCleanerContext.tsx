@@ -13,14 +13,13 @@ import React, {
 } from 'react';
 import { Platform } from 'react-native';
 
+import { ContactsContext, ContactsFetchStatus } from './ContactsContext';
 import {
   Contact,
   fetchContacts as loadContacts,
   updateContacts,
   unflattenContacts,
-} from 'src';
-
-import { ContactsContext, ContactsFetchStatus } from './ContactsContext';
+} from '../index';
 
 export type ContactsCleanerContextType = {
   status: ContactsFetchStatus;

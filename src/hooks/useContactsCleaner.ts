@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 
-import { ContactsCleanerContext } from 'src/contexts/ContactsCleanerContext';
+import { ContactsCleanerContext } from '../contexts/ContactsCleanerContext';
 
 export function useContactsCleaner() {
   return useContext(ContactsCleanerContext);
