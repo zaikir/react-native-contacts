@@ -101,31 +101,34 @@ class RNContacts: NSObject {
   func updateContacts(contacts: [[String: Any]], resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     checkContactsAccess(
       onGranted: {
-        let request = CNContactFetchRequest(keysToFetch: self.keysToFetch as [CNKeyDescriptor])
-        request.predicate = CNContact.predicateForContacts(withIdentifiers: contacts
-          .filter { item in (item["id"] as! String) != "" }
-          .map { item in item["id"] as! String }
-        )
+       let request = CNContactFetchRequest(keysToFetch: self.keysToFetch as [CNKeyDescriptor])
+        let ids = contacts.filter { item in (item["id"] as! String) != "" }.map { item in item["id"] as! String }
+        
+        if (ids.count > 0) {
+            request.predicate = CNContact.predicateForContacts(withIdentifiers: ids)
+        }
 
         var mutableContacts = [CNMutableContact]()
         var deletedContacts = [CNMutableContact]()
 
         do {
-          try self.store.enumerateContacts(with: request) { originalContact, _ in
-            var updatedContact = contacts.first { item in
-              (item["id"] as! String) == originalContact.identifier
-            }
+            if (ids.count > 0) {
+                try self.store.enumerateContacts(with: request) { originalContact, _ in
+                  var updatedContact = contacts.first { item in
+                    (item["id"] as! String) == originalContact.identifier
+                  }
 
-            if updatedContact == nil {
-              return
-            }
+                  if updatedContact == nil {
+                    return
+                  }
 
-            if updatedContact!["action"] as? String == "delete" {
-              deletedContacts.append(originalContact.mutableCopy() as! CNMutableContact)
-            } else {
-              mutableContacts.append(self.updateRecord(originalContact: originalContact, updatedContact: updatedContact!))
+                  if updatedContact!["action"] as? String == "delete" {
+                    deletedContacts.append(originalContact.mutableCopy() as! CNMutableContact)
+                  } else {
+                    mutableContacts.append(self.updateRecord(originalContact: originalContact, updatedContact: updatedContact!))
+                  }
+                }
             }
-          }
 
           let saveRequest = CNSaveRequest()
 
