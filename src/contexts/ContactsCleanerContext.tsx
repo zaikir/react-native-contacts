@@ -24,6 +24,7 @@ import {
 export type ContactsCleanerContextType = {
   status: ContactsFetchStatus;
   fetchContacts: () => Promise<void>;
+  addContacts: (contacts: Contact[]) => Promise<void>;
   deleteContact: (contactId: string) => Promise<void>;
   deleteContacts: (contactIds: string[]) => Promise<void>;
 };
@@ -35,7 +36,7 @@ export const ContactsCleanerContext = createContext<ContactsCleanerContextType>(
 export function ContactsCleanerProvider({ children }: PropsWithChildren) {
   const { checkPermissionStatus } = usePermissions();
   // @ts-ignore
-  const { showAlert: showErrorAlert } = useAlert('error');
+  const { showAlert } = useAlert();
   const { status, contacts, flatContacts, setStatus, setContacts } =
     useContext(ContactsContext);
 
@@ -68,7 +69,8 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
       );
       setStatus('fetched');
     } catch (err) {
-      showErrorAlert({
+      // @ts-ignore
+      showAlert('error', {
         code: 'contacts:fetch-contacts',
         message: (err as Error).message,
       });
@@ -84,7 +86,8 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
           : 'android.permission.WRITE_CONTACTS',
       );
       if (status === 'blocked') {
-        showErrorAlert({
+        // @ts-ignore
+        showAlert('error', {
           code: 'contacts:access-denied',
           message: 'Access to contacts required',
         });
@@ -125,6 +128,35 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
     await deleteContacts([contactId]);
   }, []);
 
+  const addContacts = useCallback(async (contacts: Contact[]) => {
+    const { status } = await checkPermissionStatus(
+      Platform.OS === 'ios'
+        ? 'ios.permission.CONTACTS'
+        : 'android.permission.WRITE_CONTACTS',
+    );
+    if (status === 'blocked') {
+      // @ts-ignore
+      showAlert('error', {
+        code: 'contacts:access-denied',
+        message: 'Access to contacts required',
+      });
+      setStatus('error');
+      return;
+    }
+
+    // @ts-ignore
+    const updatedContacts: Contact[] = contacts.map(({ id, ...contact }) => {
+      return {
+        ...contact,
+        phoneNumbers: contact.phoneNumbers.map(({ id, ...x }) => ({ ...x })),
+      };
+    });
+
+    await updateContacts(updatedContacts);
+
+    await fetchContacts();
+  }, []);
+
   useAppActivityEffect(
     (initial) => {
       if (initial || !isFetchRequested.current || status !== 'unknown') {
@@ -150,6 +182,7 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
     () => ({
       status,
       fetchContacts,
+      addContacts,
       deleteContact,
       deleteContacts,
     }),
