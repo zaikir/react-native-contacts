@@ -148,7 +148,11 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
     const updatedContacts: Contact[] = contacts.map(({ id, ...contact }) => {
       return {
         ...contact,
-        phoneNumbers: contact.phoneNumbers.map(({ id, ...x }) => ({ ...x })),
+        id: '',
+        phoneNumbers: contact.phoneNumbers.map(({ id, ...x }) => ({
+          ...x,
+          id: '',
+        })),
       };
     });
 
