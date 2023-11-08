@@ -172,7 +172,7 @@ class RNContacts: NSObject {
     } else {
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "yyyy-MM-dd"
-      mutableContact.birthday = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: dateFormatter.date(from: updatedContact["birthday"] as! String)!)
+      mutableContact.birthday = Calendar.current.dateComponents([.year, .month, .day], from: dateFormatter.date(from: updatedContact["birthday"] as! String)!)
     }
 
     mutableContact.phoneNumbers = (updatedContact["phoneNumbers"] as! [[String: Any]]).map { item in

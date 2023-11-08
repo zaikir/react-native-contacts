@@ -7,22 +7,36 @@ import React, {
   PropsWithChildren,
   createContext,
   useCallback,
-  useContext,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { Platform } from 'react-native';
 
-import { ContactsContext, ContactsFetchStatus } from './ContactsContext';
 import {
+  FlattenContact,
+  flattenContacts,
   Contact,
   fetchContacts as loadContacts,
   updateContacts,
   unflattenContacts,
 } from '../index';
 
+export type ContactsFetchStatus =
+  | 'unknown'
+  | 'fetching'
+  | 'error'
+  | 'blocked'
+  | 'fetched';
+
 export type ContactsCleanerContextType = {
   status: ContactsFetchStatus;
+  setStatus: React.Dispatch<React.SetStateAction<ContactsFetchStatus>>;
+  contacts: Contact[];
+  setContacts: React.Dispatch<React.SetStateAction<Contact[]>>;
+  flatContacts: FlattenContact[];
+  duplicateNameContacts: Contact[][];
+  duplicatePhoneContacts: FlattenContact[][];
   fetchContacts: () => Promise<void>;
   addContacts: (contacts: Contact[]) => Promise<void>;
   deleteContact: (contactId: string) => Promise<void>;
@@ -37,10 +51,57 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
   const { checkPermissionStatus } = usePermissions();
   // @ts-ignore
   const { showAlert } = useAlert();
-  const { status, contacts, flatContacts, setStatus, setContacts } =
-    useContext(ContactsContext);
 
   const isFetchRequested = useRef(false);
+
+  const [status, setStatus] = useState<ContactsFetchStatus>('unknown');
+  const [contacts, setContacts] = useState<Contact[]>([]);
+
+  const flatContacts = useMemo(
+    () => flattenContacts(contacts, 'phoneNumbers'),
+    [contacts],
+  );
+
+  const { duplicatePhoneContacts, duplicateNameContacts } = useMemo<{
+    duplicateNameContacts: Contact[][];
+    duplicatePhoneContacts: FlattenContact[][];
+  }>(() => {
+    const duplicateNameContacts = Object.values(
+      contacts
+        .filter((item) => item.firstName ?? item.secondName)
+        .reduce((acc, item) => {
+          const key = `${item.firstName} ${item.secondName}`
+            .trim()
+            .toLocaleLowerCase();
+
+          acc[key] = acc[key] ?? [];
+          acc[key]!.push(item);
+
+          return acc;
+        }, {} as Record<string, Contact[]>),
+    ).filter((x) => x.length > 1);
+
+    const duplicatePhoneContacts = Object.values(
+      flatContacts
+        .filter((item) => item.phoneNumber.phoneNumber)
+        .reduce((acc, item) => {
+          const key = item.phoneNumber
+            .phoneNumber!.trim()
+            .toLocaleLowerCase()
+            .replace(/[+\-() ]/g, '');
+
+          acc[key] = acc[key] ?? [];
+          acc[key]!.push(item);
+
+          return acc;
+        }, {} as Record<string, FlattenContact[]>),
+    ).filter((x) => x.length > 1);
+
+    return {
+      duplicateNameContacts,
+      duplicatePhoneContacts,
+    };
+  }, [contacts, flatContacts]);
 
   const fetchContacts = useCallback(async () => {
     try {
@@ -185,12 +246,27 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
   const contextData = useMemo<ContactsCleanerContextType>(
     () => ({
       status,
+      contacts,
+      flatContacts,
+      duplicatePhoneContacts,
+      duplicateNameContacts,
+      setContacts,
+      setStatus,
       fetchContacts,
       addContacts,
       deleteContact,
       deleteContacts,
     }),
-    [status, fetchContacts, deleteContact, deleteContacts],
+    [
+      status,
+      contacts,
+      flatContacts,
+      duplicatePhoneContacts,
+      duplicateNameContacts,
+      fetchContacts,
+      deleteContact,
+      deleteContacts,
+    ],
   );
 
   return (
