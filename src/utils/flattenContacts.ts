@@ -88,3 +88,50 @@ export function unflattenContacts(
     nestedIds: x[1],
   }));
 }
+
+export function findDuplicateNameContacts(
+  contacts: Contact[],
+  predicate?: (value: Contact, index: number, array: Contact[]) => unknown,
+) {
+  return Object.values(
+    contacts
+      .filter((item) => item.firstName ?? item.secondName)
+      .filter((...args) => !predicate || predicate(...args))
+      .reduce((acc, item) => {
+        const key = `${item.firstName} ${item.secondName}`
+          .trim()
+          .toLocaleLowerCase();
+
+        acc[key] = acc[key] ?? [];
+        acc[key]!.push(item);
+
+        return acc;
+      }, {} as Record<string, Contact[]>),
+  ).filter((x) => x.length > 1);
+}
+
+export function findDuplicatePhoneContacts(
+  flatContacts: FlattenContact<'phoneNumbers'>[],
+  predicate?: (
+    value: FlattenContact<'phoneNumbers'>,
+    index: number,
+    array: FlattenContact<'phoneNumbers'>[],
+  ) => unknown,
+) {
+  return Object.values(
+    flatContacts
+      .filter((item) => item.phoneNumber.phoneNumber)
+      .filter((...args) => !predicate || predicate(...args))
+      .reduce((acc, item) => {
+        const key = item.phoneNumber
+          .phoneNumber!.trim()
+          .toLocaleLowerCase()
+          .replace(/[+\-() ]/g, '');
+
+        acc[key] = acc[key] ?? [];
+        acc[key]!.push(item);
+
+        return acc;
+      }, {} as Record<string, FlattenContact[]>),
+  ).filter((x) => x.length > 1);
+}

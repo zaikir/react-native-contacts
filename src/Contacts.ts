@@ -1,6 +1,11 @@
 import { RNContacts } from './ContactsNative';
 import { Contact, ContactUpdate } from './types';
-import { flattenContacts, unflattenContacts } from './utils/flattenContacts';
+import {
+  findDuplicateNameContacts,
+  findDuplicatePhoneContacts,
+  flattenContacts,
+  unflattenContacts,
+} from './utils/flattenContacts';
 
 /**
  * `Contacts` provides access to the contacts
@@ -87,4 +92,8 @@ export class Contacts {
   static flattenContacts = flattenContacts;
 
   static unflattenContacts = unflattenContacts;
+
+  static findDuplicateNameContacts = findDuplicateNameContacts;
+
+  static findDuplicatePhoneContacts = findDuplicatePhoneContacts;
 }

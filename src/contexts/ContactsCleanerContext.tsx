@@ -14,6 +14,11 @@ import React, {
 import { Platform } from 'react-native';
 
 import {
+  findDuplicateNameContacts,
+  findDuplicatePhoneContacts,
+} from 'src/utils/flattenContacts';
+
+import {
   FlattenContact,
   flattenContacts,
   Contact,
@@ -66,36 +71,9 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
     duplicateNameContacts: Contact[][];
     duplicatePhoneContacts: FlattenContact[][];
   }>(() => {
-    const duplicateNameContacts = Object.values(
-      contacts
-        .filter((item) => item.firstName ?? item.secondName)
-        .reduce((acc, item) => {
-          const key = `${item.firstName} ${item.secondName}`
-            .trim()
-            .toLocaleLowerCase();
+    const duplicateNameContacts = findDuplicateNameContacts(contacts);
 
-          acc[key] = acc[key] ?? [];
-          acc[key]!.push(item);
-
-          return acc;
-        }, {} as Record<string, Contact[]>),
-    ).filter((x) => x.length > 1);
-
-    const duplicatePhoneContacts = Object.values(
-      flatContacts
-        .filter((item) => item.phoneNumber.phoneNumber)
-        .reduce((acc, item) => {
-          const key = item.phoneNumber
-            .phoneNumber!.trim()
-            .toLocaleLowerCase()
-            .replace(/[+\-() ]/g, '');
-
-          acc[key] = acc[key] ?? [];
-          acc[key]!.push(item);
-
-          return acc;
-        }, {} as Record<string, FlattenContact[]>),
-    ).filter((x) => x.length > 1);
+    const duplicatePhoneContacts = findDuplicatePhoneContacts(flatContacts);
 
     return {
       duplicateNameContacts,
