@@ -14,11 +14,6 @@ import React, {
 import { Platform } from 'react-native';
 
 import {
-  findDuplicateNameContacts,
-  findDuplicatePhoneContacts,
-} from 'src/utils/flattenContacts';
-
-import {
   FlattenContact,
   flattenContacts,
   Contact,
@@ -26,6 +21,10 @@ import {
   updateContacts,
   unflattenContacts,
 } from '../index';
+import {
+  findDuplicateNameContacts,
+  findDuplicatePhoneContacts,
+} from '../utils/flattenContacts';
 
 export type ContactsFetchStatus =
   | 'unknown'
