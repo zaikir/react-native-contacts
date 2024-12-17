@@ -8,8 +8,7 @@ import React, {
 } from 'react';
 import { Platform } from 'react-native';
 
-import { usePermissions } from 'src/hooks/usePermissions';
-
+import { usePermissions } from '../hooks/usePermissions';
 import {
   FlattenContact,
   flattenContacts,

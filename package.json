@@ -1,6 +1,6 @@
 {
   "name": "@kirz/react-native-contacts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React Native Contacts",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
