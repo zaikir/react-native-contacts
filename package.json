@@ -1,6 +1,6 @@
 {
   "name": "@kirz/react-native-contacts",
-  "version": "0.3.8",
+  "version": "1.0.0",
   "description": "React Native Contacts",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -48,7 +48,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@kirz/react-native-toolkit": "^0.7.3",
     "@types/react": "~18.2.0",
     "@types/react-native": "0.70.6",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
@@ -63,6 +62,7 @@
     "react": "18.1.0",
     "react-native": "0.70.6",
     "react-native-builder-bob": "^0.20.0",
+    "react-native-permissions": "^5.2.1",
     "typescript": "^5.2.2"
   },
   "resolutions": {
@@ -71,7 +71,7 @@
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
-    "@kirz/react-native-toolkit": "*"
+    "react-native-permissions": "*"
   },
   "engines": {
     "node": ">= 16.0.0"

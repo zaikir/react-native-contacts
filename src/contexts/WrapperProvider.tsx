@@ -1,7 +1,15 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 
-import { ContactsCleanerProvider } from './ContactsCleanerContext';
+import {
+  ContactsCleanerProvider,
+  ContactsCleanerProviderProps,
+} from './ContactsCleanerContext';
 
-export function WrapperProvider({ children }: PropsWithChildren) {
-  return <ContactsCleanerProvider>{children}</ContactsCleanerProvider>;
+export function WrapperProvider({
+  children,
+  ...props
+}: ContactsCleanerProviderProps) {
+  return (
+    <ContactsCleanerProvider {...props}>{children}</ContactsCleanerProvider>
+  );
 }

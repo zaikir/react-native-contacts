@@ -1,8 +1,3 @@
-import {
-  useAlert,
-  useAppActivityEffect,
-  usePermissions,
-} from '@kirz/react-native-toolkit';
 import React, {
   PropsWithChildren,
   createContext,
@@ -13,6 +8,8 @@ import React, {
 } from 'react';
 import { Platform } from 'react-native';
 
+import { usePermissions } from 'src/hooks/usePermissions';
+
 import {
   FlattenContact,
   flattenContacts,
@@ -20,6 +17,7 @@ import {
   fetchContacts as loadContacts,
   updateContacts,
   unflattenContacts,
+  useAppActivityEffect,
 } from '../index';
 import {
   findDuplicateNameContacts,
@@ -51,10 +49,15 @@ export const ContactsCleanerContext = createContext<ContactsCleanerContextType>(
   {} as any,
 );
 
-export function ContactsCleanerProvider({ children }: PropsWithChildren) {
+export type ContactsCleanerProviderProps = PropsWithChildren<{
+  showAlert: (error: string, payload: any) => void;
+}>;
+
+export function ContactsCleanerProvider({
+  showAlert,
+  children,
+}: ContactsCleanerProviderProps) {
   const { checkPermissionStatus } = usePermissions();
-  // @ts-ignore
-  const { showAlert } = useAlert();
 
   const isFetchRequested = useRef(false);
 
@@ -107,7 +110,6 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
       );
       setStatus('fetched');
     } catch (err) {
-      // @ts-ignore
       showAlert('error', {
         code: 'contacts:fetch-contacts',
         message: (err as Error).message,
@@ -124,7 +126,6 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
           : 'android.permission.WRITE_CONTACTS',
       );
       if (status === 'blocked') {
-        // @ts-ignore
         showAlert('error', {
           code: 'contacts:access-denied',
           message: 'Access to contacts required',
@@ -173,7 +174,6 @@ export function ContactsCleanerProvider({ children }: PropsWithChildren) {
         : 'android.permission.WRITE_CONTACTS',
     );
     if (status === 'blocked') {
-      // @ts-ignore
       showAlert('error', {
         code: 'contacts:access-denied',
         message: 'Access to contacts required',

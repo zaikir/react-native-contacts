@@ -10,4 +10,5 @@ export const findDuplicateNameContacts = Contacts.findDuplicateNameContacts;
 export const findDuplicatePhoneContacts = Contacts.findDuplicatePhoneContacts;
 
 export { useContactsCleaner } from './hooks/useContactsCleaner';
+export { useAppActivityEffect } from './hooks/useAppActivityEffect';
 export { WrapperProvider as ContactsProvider } from './contexts/WrapperProvider';
